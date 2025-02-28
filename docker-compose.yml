@@ -8,10 +8,10 @@ services:
     volumes:
       - nextcloud-db:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: bao
+      MYSQL_ROOT_PASSWORD: 
       MYSQL_DATABASE: nextcloud
       MYSQL_USER: nextcloud
-      MYSQL_PASSWORD: P0rsel2026Db
+      MYSQL_PASSWORD: 
     networks:
       - nextcloud_network
 
@@ -38,13 +38,13 @@ services:
       - nextcloud-apps:/var/www/html/apps
       - nextcloud-themes:/var/www/html/themes
     environment:
-      NEXTCLOUD_ADMIN_USER: paschek
-      NEXTCLOUD_ADMIN_PASSWORD: bao
+      NEXTCLOUD_ADMIN_USER: 
+      NEXTCLOUD_ADMIN_PASSWORD: 
       MYSQL_HOST: db
       MYSQL_DATABASE: nextcloud
       MYSQL_USER: nextcloud
-      MYSQL_PASSWORD: P0rsel2026Db
-      NEXTCLOUD_TRUSTED_DOMAINS: "drive.porsel2026.ch"
+      MYSQL_PASSWORD: 
+      NEXTCLOUD_TRUSTED_DOMAINS: 
       REDIS_HOST: redis
     networks:
       - nextcloud_network
@@ -84,11 +84,11 @@ services:
     cap_add:
       - MKNOD
     environment:
-      - domain=drive\\.porsel2026\\.ch
-      - server_name=collabora.porsel2026.ch
-      - extra_params=--o:ssl.enable=false --o:ssl.termination=true --o:net.proto=IPv4 --o:net.post_allow.host=84.227.234.181
-      - username=admin
-      - password=collabora_bao
+      - domain=
+      - server_name=
+      - extra_params=--o:ssl.enable=false --o:ssl.termination=true --o:net.proto=IPv4 --o:net.post_allow.host=
+      - username=
+      - password=
       - dictionaries=en fr de
     ports:
       - "9980:9980"
@@ -99,10 +99,10 @@ services:
     container_name: wordpress-db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: bao
+      MYSQL_ROOT_PASSWORD: 
       MYSQL_DATABASE: wordpress
       MYSQL_USER: wordpress
-      MYSQL_PASSWORD: P0rsel2026Db
+      MYSQL_PASSWORD: 
     volumes:
       - wordpress_db_data:/var/lib/mysql
     networks:
@@ -117,7 +117,7 @@ services:
     environment:
       WORDPRESS_DB_HOST: wordpress-db
       WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD: P0rsel2026Db
+      WORDPRESS_DB_PASSWORD: 
       WORDPRESS_DB_NAME: wordpress
     volumes:
       - wordpress_data:/var/www/html
