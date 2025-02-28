@@ -1,0 +1,27 @@
+# WordPress Core
+wp-admin/
+wp-includes/
+
+# Configuration et logs
+wp-config.php
+.htaccess
+debug.log
+wp-content/debug.log
+
+# Dossiers volumineux et temporaires
+wp-content/uploads/
+wp-content/upgrade/
+wp-content/cache/
+wp-content/backup-*/
+
+# Base de données
+*.sql
+*.sql.gz
+*.tar.gz
+
+# Fichiers spécifiques aux éditeurs
+.sftp-config.json
+.idea/
+.vscode/
+node_modules/
+
