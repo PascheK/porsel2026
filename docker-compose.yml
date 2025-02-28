@@ -1,0 +1,140 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:10.6
+    container_name: nextcloud-db
+    restart: unless-stopped
+    volumes:
+      - nextcloud-db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: bao
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_PASSWORD: P0rsel2026Db
+    networks:
+      - nextcloud_network
+
+  redis:
+    image: redis:alpine
+    container_name: nextcloud-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - nextcloud_network
+
+  nextcloud:
+    image: nextcloud
+    container_name: nextcloud-app
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - nextcloud-data:/var/www/html
+      - nextcloud-config:/var/www/html/config
+      - nextcloud-apps:/var/www/html/apps
+      - nextcloud-themes:/var/www/html/themes
+    environment:
+      NEXTCLOUD_ADMIN_USER: paschek
+      NEXTCLOUD_ADMIN_PASSWORD: bao
+      MYSQL_HOST: db
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_PASSWORD: P0rsel2026Db
+      NEXTCLOUD_TRUSTED_DOMAINS: "drive.porsel2026.ch"
+      REDIS_HOST: redis
+    networks:
+      - nextcloud_network
+
+  proxy:
+    image: nginx:latest
+    container_name: nextcloud-proxy
+    restart: unless-stopped
+    depends_on:
+      - nextcloud
+      - collabora
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - certbot-ssl:/etc/letsencrypt
+      - nextcloud-data:/var/www/html:ro
+    networks:
+      - nextcloud_network
+
+  certbot:
+    image: certbot/certbot
+    container_name: nextcloud-certbot
+    restart: unless-stopped
+    depends_on:
+      - proxy
+    volumes:
+      - certbot-ssl:/etc/letsencrypt
+      - nextcloud-data:/var/www/html
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/html; sleep 12h & wait $${!}; done'"
+
+  collabora:
+    image: collabora/code
+    container_name: nextcloud-collabora
+    restart: always
+    cap_add:
+      - MKNOD
+    environment:
+      - domain=drive\\.porsel2026\\.ch
+      - server_name=collabora.porsel2026.ch
+      - extra_params=--o:ssl.enable=false --o:ssl.termination=true --o:net.proto=IPv4 --o:net.post_allow.host=84.227.234.181
+      - username=admin
+      - password=collabora_bao
+      - dictionaries=en fr de
+    ports:
+      - "9980:9980"
+    networks:
+      - nextcloud_network
+  wordpress-db:
+    image: mariadb:latest
+    container_name: wordpress-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: bao
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: P0rsel2026Db
+    volumes:
+      - wordpress_db_data:/var/lib/mysql
+    networks:
+      - nextcloud_network
+
+  wordpress:
+    image: wordpress:latest
+    container_name: wordpress
+    restart: always
+    depends_on:
+      - wordpress-db
+    environment:
+      WORDPRESS_DB_HOST: wordpress-db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: P0rsel2026Db
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - nextcloud_network
+
+networks:
+  nextcloud_network:
+
+volumes:
+  nextcloud-data:
+  nextcloud-config:
+  nextcloud-apps:
+  nextcloud-themes:
+  nextcloud-db:
+  redis-data:
+  certbot-ssl:
+  wordpress_data:
+  wordpress_db_data:
+                          
